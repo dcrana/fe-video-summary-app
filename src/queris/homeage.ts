@@ -10,6 +10,9 @@ export const homePageQuery = qs.stringify({
         link: {
           populate: true,
         },
+        feature:{
+          populate:true
+        }
       },
     },
   },

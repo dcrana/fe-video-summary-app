@@ -1,29 +1,30 @@
+import FeatureSection from '@/components/custom/FeatureSection'
 import HeroSection from '@/components/custom/HeroSection'
-import { flattenAttributes } from '@/lib/utils'
+import { getHomePageData } from '@/data/loader'
+import { flattenAttributes, getStrapiURL } from '@/lib/utils'
 import { homePageQuery } from '@/queris/homeage'
 
-const getStrapiData = async (path: string) => {
-  const baseUrl = 'http://127.0.0.1:1337'
-  const url = new URL(path, baseUrl)
-  url.search = homePageQuery
-  try {
-    const response = await fetch(url.href, { cache: 'no-store' })
-    const data = await response.json()
-    console.log('data', data)
-    const flattenedData = flattenAttributes(data)
-    return flattenedData
-  } catch (error) {
-    console.error(error)
+
+
+const blockRenderer = (block: any) => {
+  switch (block.__component) {
+    case "layout.hero-section":
+      return <HeroSection key={block.id} data={block} />;
+    case "layout.feature-section":
+      return <FeatureSection key={block.id} data={block} />;
+    default:
+      return null;
   }
 }
 
 const Home = async () => {
-  const strapiData = await getStrapiData('/api/home-page')
+  const strapiData = await getHomePageData()
   const { blocks } = strapiData
+  if (!blocks) return <p>No sections found</p>;
 
   return (
     <main>
-      <HeroSection data={blocks[0]} />
+      {blocks.map(blockRenderer)}
     </main>
   )
 }
