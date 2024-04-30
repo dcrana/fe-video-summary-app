@@ -1,6 +1,7 @@
-import qs from 'qs'
 import { flattenAttributes, getStrapiURL } from '@/lib/utils'
 import { homePageQuery } from '@/queris/homeage'
+import { getMetadataQuery, globalquery } from '@/queris/gloabal'
+import { unstable_noStore as noStore } from 'next/cache'
 
 const baseUrl = getStrapiURL()
 
@@ -15,10 +16,7 @@ export const fetchData = async (url: string) => {
   }
 
   try {
-    const response = await fetch(
-      url,
-      authToken ? { ...headers, cache: 'no-store' } : { cache: 'no-store' }
-    )
+    const response = await fetch(url, authToken ? headers : {})
     const data = await response.json()
     return flattenAttributes(data)
   } catch (error) {
@@ -28,8 +26,24 @@ export const fetchData = async (url: string) => {
 }
 
 export const getHomePageData = async () => {
+  noStore()
   const url = new URL('/api/home-page', baseUrl)
   url.search = homePageQuery
+
+  return await fetchData(url.href)
+}
+
+export const getGlobalData = async () => {
+  noStore()
+  const url = new URL('/api/global', baseUrl)
+  url.search = globalquery
+  return await fetchData(url.href)
+}
+
+export const getGlobalPageMetadata = async () => {
+  const url = new URL('/api/global', baseUrl)
+
+  url.search = getMetadataQuery
 
   return await fetchData(url.href)
 }
