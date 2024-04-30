@@ -25,9 +25,17 @@ interface HeroSectionProps {
 const HeroSection = ({ data }: { data: HeroSectionProps }) => {
   const { heading, subHeading, image, link } = data
   const imageURL = 'http://localhost:1337' + image.url
+
   return (
     <header className="relative h-[600px] overflow-hidden">
-      <StrapiImage
+      {/* <StrapiImage
+        alt="Background"
+        className="absolute inset-0 object-cover w-full h-full aspect/16:9"
+        src={imageURL}
+        height={1080}
+        width={1920}
+      /> */}
+      <img
         alt="Background"
         className="absolute inset-0 object-cover w-full h-full aspect/16:9"
         src={imageURL}
