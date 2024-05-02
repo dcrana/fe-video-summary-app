@@ -1,8 +1,10 @@
 'use server'
 import { flattenAttributes } from '@/lib/utils'
-import { schemaProfile } from '@/validator'
+import { imageSchema, schemaProfile } from '@/validator'
 import qs from 'qs'
 import { mutateData } from '../services/mutate-data'
+import { getUserMeLoader } from '../services/get-user-me-loader'
+import { fileDeleteService, fileUploadService } from '../services/file-service'
 
 export async function updateProfileAction(
   userId: string,
@@ -66,5 +68,89 @@ export async function updateProfileAction(
     data: flattenedData,
     strapiErrors: null,
     zodErrors: null,
+  }
+}
+
+export async function uploadProfileImageAction(
+  imageId: string,
+  prevState: any,
+  formData: FormData
+) {
+  // GET THE LOGGED IN USER
+  const user = await getUserMeLoader()
+  if (!user.ok)
+    throw new Error('You are not authorized to perform this action.')
+
+  const userId = user.data.id
+
+  // CONVERT FORM DATA TO OBJECT
+  const data = Object.fromEntries(formData)
+
+  // VALIDATE THE IMAGE
+  const validatedFields = imageSchema.safeParse({
+    image: data.image,
+  })
+
+  if (!validatedFields.success) {
+    return {
+      ...prevState,
+      zodErrors: validatedFields.error.flatten().fieldErrors,
+      strapiErrors: null,
+      data: null,
+      message: 'Invalid Image',
+    }
+  }
+
+  // DELETE PREVIOUS IMAGE IF EXISTS
+  if (imageId) {
+    try {
+      await fileDeleteService(imageId)
+    } catch (error) {
+      return {
+        ...prevState,
+        strapiErrors: null,
+        zodErrors: null,
+        message: 'Failed to Delete Previous Image.',
+      }
+    }
+  }
+
+  // UPLOAD NEW IMAGE TO MEDIA LIBRARY
+  const fileUploadResponse = await fileUploadService(data.image)
+
+  if (!fileUploadResponse) {
+    return {
+      ...prevState,
+      strapiErrors: null,
+      zodErrors: null,
+      message: 'Ops! Something went wrong. Please try again.',
+    }
+  }
+
+  if (fileUploadResponse.error) {
+    return {
+      ...prevState,
+      strapiErrors: fileUploadResponse.error,
+      zodErrors: null,
+      message: 'Failed to Upload File.',
+    }
+  }
+  const updatedImageId = fileUploadResponse[0].id
+  const payload = { image: updatedImageId }
+
+  // UPDATE USER PROFILE WITH NEW IMAGE
+  const updateImageResponse = await mutateData(
+    'PUT',
+    `/api/users/${userId}`,
+    payload
+  )
+  const flattenedData = flattenAttributes(updateImageResponse)
+
+  return {
+    ...prevState,
+    data: flattenedData,
+    zodErrors: null,
+    strapiErrors: null,
+    message: 'Image Uploaded',
   }
 }

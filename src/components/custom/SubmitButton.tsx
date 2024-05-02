@@ -27,7 +27,6 @@ const SubmitButton = ({
   className,
 }: Readonly<SubmitButtonProps>) => {
   const status = useFormStatus()
-  console.log('status', status)
   return (
     <Button
       type="submit"
