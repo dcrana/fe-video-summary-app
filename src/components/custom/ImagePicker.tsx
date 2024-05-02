@@ -38,7 +38,6 @@ const ImageCard = ({
   readonly dataUrl: string
   readonly fileInput: React.RefObject<HTMLInputElement>
 }) => {
-  console.log('dataUrl', dataUrl)
   const imagePreview = dataUrl ? (
     <ImagePreview dataUrl={dataUrl} />
   ) : (

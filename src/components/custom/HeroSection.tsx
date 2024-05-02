@@ -56,7 +56,7 @@ const HeroSection = async ({ data }: { data: HeroSectionProps }) => {
           className="mt-8 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-black bg-white rounded-md shadow hover:bg-gray-100"
           href={linkUrl}
         >
-          {userLoggedIn ? 'Dashboard' : link.text}
+          {userLoggedIn ? 'Go to Dashboard' : link.text}
         </Link>
       </div>
     </header>
