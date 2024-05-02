@@ -35,3 +35,30 @@ export const schemaLogin = z.object({
       message: 'Password must be between 6 and 100 characters',
     }),
 })
+
+export const schemaProfile = z.object({
+  firstName: z
+    .string()
+    .min(3, {
+      message: 'Firstname must be between 3 and 20 characters',
+    })
+    .max(20, {
+      message: 'Firstname must be between 3 and 20 characters',
+    }),
+  lastName: z
+    .string()
+    .min(3, {
+      message: 'Lastname must be between 3 and 20 characters',
+    })
+    .max(20, {
+      message: 'Lastname must be between 3 and 20 characters',
+    }),
+  bio: z
+    .string()
+    .min(3, {
+      message: 'Bio must be between 3 and 100 characters',
+    })
+    .max(100, {
+      message: 'Bio must be between 3 and 100 characters',
+    }),
+})
